@@ -1,0 +1,1 @@
+# GMC_properties
