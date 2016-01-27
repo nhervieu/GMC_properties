@@ -31,15 +31,27 @@ mygalaxy = Galaxy("M100")
 cpropstable = Table.read('m100.co10_props_cprops.fits')
 rgal=mygalaxy.radius(ra = cpropstable['XPOS'], dec = cpropstable['YPOS'])
 
-
+#Make array of indexes for low R_gal group
+A = []
+n = 0
+test = rgal.value
+for item in test:
+	if item < 1200:
+		A = A + [n]
+	n = n +1
+	
+	
 ##PLOTS##
 
 #Virial mass vs.luminous mass plot
 figure = plt.figure(figsize=(4.5,4)) #figure size in inches
 line1, line2 = plt.loglog(one,one, mytable['MASS_EXTRAP'],mytable['VIRMASS_EXTRAP_DECONV'])
 line1.set_linestyle('-')
+line1.set_color('k')
 line2.set_linestyle('None')
 line2.set_marker('.')
+for item in A:
+	plt.loglog(mytable['MASS_EXTRAP'][item],mytable['VIRMASS_EXTRAP_DECONV'][item],marker='.',c='b')
 plt.loglog(mytable['MASS_EXTRAP'][92],mytable['VIRMASS_EXTRAP_DECONV'][92],marker='.',c='r')
 plt.loglog(mytable['MASS_EXTRAP'][132],mytable['VIRMASS_EXTRAP_DECONV'][132],marker='.',c='m')
 plt.xlabel(r'$M_{\mathrm{lum}}\ (M_{\odot})$') 
@@ -51,10 +63,13 @@ plt.savefig('MlumMvir_matplotlib.png')
 figure = plt.figure(figsize=(4.5,4)) #figure size in inches
 line1, line2 = plt.loglog(R,sigmav, mytable['RADRMS_EXTRAP_DECONV'],mytable['VRMS_EXTRAP_DECONV'])
 line1.set_linestyle('-')
+line1.set_color('k')
 line2.set_linestyle('None')
 line2.set_marker('.')
 plt.ylabel(r'$\sigma\ (km\ s^{-1})$') 
 plt.xlabel(r'$R\ (pc)$')
+for item in A:
+	plt.loglog(mytable['RADRMS_EXTRAP_DECONV'][item],mytable['VRMS_EXTRAP_DECONV'][item],marker='.',c='b')
 plt.loglog(mytable['RADRMS_EXTRAP_DECONV'][92],mytable['VRMS_EXTRAP_DECONV'][92],marker='.',c='r')
 plt.loglog(mytable['RADRMS_EXTRAP_DECONV'][132],mytable['VRMS_EXTRAP_DECONV'][132],marker='.',c='m')
 plt.tight_layout() 	
@@ -64,10 +79,13 @@ plt.savefig('LwRad_matplotlib.png')
 figure = plt.figure(figsize=(4.5,4)) #figure size in inches
 line1, line2 = plt.loglog(R,M_lum,mytable['RADRMS_EXTRAP_DECONV'],mytable['MASS_EXTRAP'])
 line1.set_linestyle('-')
+line1.set_color('k')
 line2.set_linestyle('None')
 line2.set_marker('.')
 plt.xlabel(r'$R\ (pc)$') 
 plt.ylabel(r'$M_{\mathrm{lum}}\ (M_{\odot})$')
+for item in A:
+	plt.loglog(mytable['RADRMS_EXTRAP_DECONV'][item],mytable['MASS_EXTRAP'][item],marker='.',c='b')
 plt.loglog(mytable['RADRMS_EXTRAP_DECONV'][92],mytable['MASS_EXTRAP'][92],marker='.',c='r')
 plt.loglog(mytable['RADRMS_EXTRAP_DECONV'][132],mytable['MASS_EXTRAP'][132],marker='.',c='m')
 plt.tight_layout() 	
@@ -78,6 +96,8 @@ figure = plt.figure(figsize=(4.5,4))
 plt.loglog(M_den,sigma0,marker='.',linestyle='None',c='g')
 plt.xlabel('$M/\pi R^2\ ((M_{\odot})/pc^2)$')
 plt.ylabel('$\sigma_0$')
+for item in A:
+	plt.loglog(M_den[item],sigma0[item],marker='.',c='b')
 plt.loglog(M_den[92],sigma0[92],marker='.',c='r')
 plt.loglog(M_den[132],sigma0[132],marker='.',c='m')
 plt.tight_layout() 	
@@ -88,9 +108,15 @@ figure = plt.figure(figsize=(4.5,4))
 plt.loglog(rgal.to(u.pc),sigma0,marker='.',linestyle='None',c='g')
 plt.xlabel('$R_{gal} (pc)$')
 plt.ylabel('$\sigma_0$')
+for item in A:
+	plt.loglog(rgal.to(u.pc)[item],sigma0[item],marker='.',c='b')
 plt.loglog(rgal.to(u.pc)[92],sigma0[92],marker='.',c='r')
 plt.loglog(rgal.to(u.pc)[132],sigma0[132],marker='.',c='m')
 plt.tight_layout() 	
 plt.savefig('sigma0_Rgal_matplotlib.png')
 
 
+
+
+
+	
