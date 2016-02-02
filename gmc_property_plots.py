@@ -4,18 +4,23 @@ import matplotlib.pyplot as plt
 import numpy as np
 from galaxies import Galaxy
 import astropy.units as u
+import powerlaw
 
 #load file
 mytable = Table.read('m100.co10_props_cprops.fits')
 
-
 ##VARIABLE DEFINITIONS##
 
+# Pull out the mass variable into a numpy array.
+mass = mytable['MASS_EXTRAP'].data 
+#remove two outliers    
+mass = np.delete(mass,132)
+mass = np.delete(mass,92)
+ 
 #Radius vs line width best fit line
 R = np.arange(10,1000)
 S = np.power(np.pi,1/2)*R/3.4
 sigmav = np.sqrt(S)
-print sigmav[0]
 one = np.arange(10000,10000000000,10000)
 
 #Virial Mass best fit line
@@ -33,7 +38,8 @@ cpropstable = Table.read('m100.co10_props_cprops.fits')
 rgal=mygalaxy.radius(ra = cpropstable['XPOS'], dec = cpropstable['YPOS'])
 
 #indexes for low R_gal group 
-index = np.where(rgal.value < 1200)	
+index = np.where(rgal.value < 1000)	
+	
 	
 ##PLOTS##
 
@@ -93,7 +99,7 @@ plt.loglog(M_den[132],sigma0[132],marker='.',c='m')
 plt.tight_layout() 	
 plt.savefig('Sigma0_Mden_matplotlib.png')
 
-###Sigma_0 vs Galactocentric Radii
+#Sigma_0 vs Galactocentric Radii
 figure = plt.figure(figsize=(4.5,4))
 plt.loglog(rgal.to(u.pc),sigma0,marker='.',linestyle='None',c='g')
 plt.xlabel('$R_{gal} (pc)$')
@@ -103,6 +109,81 @@ plt.loglog(rgal.to(u.pc)[92],sigma0[92],marker='.',c='r')
 plt.loglog(rgal.to(u.pc)[132],sigma0[132],marker='.',c='m')
 plt.tight_layout() 	
 plt.savefig('sigma0_Rgal_matplotlib.png')
+
+#Luminous mass vs. radius plot
+figure = plt.figure(figsize=(4.5,4)) #figure size in inches
+plt.plot(mytable['XPOS'],mytable['YPOS'],linestyle = 'None', marker = '.',c = 'g')
+plt.xlabel('X') 
+plt.ylabel('Y')
+plt.plot(mytable['XPOS'][index],mytable['YPOS'][index],marker='.',c='b',linestyle='None')
+plt.plot(mytable['XPOS'][92],mytable['YPOS'][92],marker='.',c='r')
+plt.plot(mytable['XPOS'][132],mytable['YPOS'][132],marker='.',c='m')
+plt.tight_layout() 	
+plt.savefig('xypos_matplotlib.png')
+
+
+## MASS DISTRIBUTIONS ##
+
+#Mass Distribution for All Clouds
+figure = plt.figure(figsize=(4.5,4)) 
+#Fit data 
+myfit = powerlaw.Fit(mass)
+myfit.plot_ccdf(label='Fit')
+R, p = myfit.distribution_compare('power_law','truncated_power_law')
+#Plot
+myfit.truncated_power_law.plot_ccdf(label='Trunc. Power Law')
+myfit.power_law.plot_ccdf(label='Power Law')
+myfit.plot_ccdf(drawstyle='steps',label='Data')
+plt.legend(loc ='lower left',prop={'size':8})
+plt.ylabel(r'$N$')
+plt.xlabel(r'$Mass\ (M_{\odot})$')
+plt.tight_layout() 	
+plt.savefig('powerlaw.png')
+
+
+#Mass Distribution for Nuclear Clouds
+figure = plt.figure(figsize=(4.5,4)) 
+#Keep only clouds with rgal <1kpc
+mass_nuc = mass[index]
+myfit_nuc = powerlaw.Fit(mass_nuc)
+R_nuc, p_nuc = myfit_nuc.distribution_compare('power_law','truncated_power_law')
+#Plot
+myfit_nuc.plot_ccdf(label='Fit')
+myfit_nuc.truncated_power_law.plot_ccdf(label='Trunc. Power Law')
+myfit_nuc.power_law.plot_ccdf(label='Power Law')
+myfit_nuc.plot_ccdf(drawstyle='steps',label='Data (Nuclear Clouds)')
+plt.legend(loc ='lower left',prop={'size':8})
+plt.ylabel(r'$N$')
+plt.xlabel(r'$Mass\ (M_{\odot})$')
+plt.tight_layout() 	
+plt.savefig('powerlaw_nuc.png')
+
+
+#Mass Distribution for Disk Clouds
+figure = plt.figure(figsize=(4.5,4)) 
+#Ignore all clouds with rgal >1kpc
+mass_disk = np.delete(mass,index)
+#Fit Data
+myfit_disk = powerlaw.Fit(mass_disk)
+R_disk, p_disk = myfit_disk.distribution_compare('power_law','truncated_power_law')
+#Plot
+myfit_disk.plot_ccdf(label='Fit')
+myfit_disk.truncated_power_law.plot_ccdf(label='Trunc. Power Law')
+myfit_disk.power_law.plot_ccdf(label='Power Law')
+myfit_disk.plot_ccdf(drawstyle='steps',label='Data (Disk Clouds)')
+plt.legend(loc ='lower left',prop={'size':8})
+plt.ylabel(r'$N$')
+plt.xlabel(r'$Mass\ (M_{\odot})$')
+plt.tight_layout() 	
+plt.savefig('powerlaw_disk.png')
+
+
+#print out table of alpha, R and p values for each mass distribution
+tb = {'Clouds': ['All','Nuclear','Disk'],'Alpha': [myfit.alpha,myfit_nuc.alpha,myfit_disk.alpha],'R':[R,R_nuc,R_disk], 'p':[p,p_nuc,p_disk]}
+print Table(tb,names =('Clouds','Alpha','R','p'))
+
+
+
 
 
 
