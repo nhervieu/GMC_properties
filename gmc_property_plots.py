@@ -110,7 +110,7 @@ plt.loglog(rgal.to(u.pc)[132],sigma0[132],marker='.',c='m')
 plt.tight_layout() 	
 plt.savefig('sigma0_Rgal_matplotlib.png')
 
-#Luminous mass vs. radius plot
+#X,Y position
 figure = plt.figure(figsize=(4.5,4)) #figure size in inches
 plt.plot(mytable['XPOS'],mytable['YPOS'],linestyle = 'None', marker = '.',c = 'g')
 plt.xlabel('X') 
@@ -145,7 +145,7 @@ plt.savefig('powerlaw.png')
 figure = plt.figure(figsize=(4.5,4)) 
 #Keep only clouds with rgal <1kpc
 mass_nuc = mass[index]
-myfit_nuc = powerlaw.Fit(mass_nuc)
+myfit_nuc = powerlaw.Fit(mass_nuc,xmin = myfit.xmin)
 R_nuc, p_nuc = myfit_nuc.distribution_compare('power_law','truncated_power_law')
 #Plot
 myfit_nuc.plot_ccdf(label='Fit')
@@ -164,7 +164,7 @@ figure = plt.figure(figsize=(4.5,4))
 #Ignore all clouds with rgal >1kpc
 mass_disk = np.delete(mass,index)
 #Fit Data
-myfit_disk = powerlaw.Fit(mass_disk)
+myfit_disk = powerlaw.Fit(mass_disk,xmin = myfit.xmin)
 R_disk, p_disk = myfit_disk.distribution_compare('power_law','truncated_power_law')
 #Plot
 myfit_disk.plot_ccdf(label='Fit')
