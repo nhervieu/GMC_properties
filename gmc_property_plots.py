@@ -7,7 +7,7 @@ import astropy.units as u
 import powerlaw
 
 #load file
-mytable = Table.read('m100.co10_props_cprops.fits')
+mytable = Table.read('m100.co10.kkms_props_cprops.fits')
 
 ##VARIABLE DEFINITIONS##
 
@@ -34,12 +34,11 @@ sigma0 = mytable['VRMS_EXTRAP_DECONV']/np.sqrt(mytable['RADRMS_EXTRAP_DECONV'])
 M_den = mytable['MASS_EXTRAP']/(np.pi*np.power(mytable['RADRMS_EXTRAP_DECONV'],2)) 
 
 mygalaxy = Galaxy("M100")
-cpropstable = Table.read('m100.co10_props_cprops.fits')
+cpropstable = Table.read('m100.co10.kkms_props_cprops.fits')
 rgal=mygalaxy.radius(ra = cpropstable['XPOS'], dec = cpropstable['YPOS'])
 
 #indexes for low R_gal group 
-index = np.where(rgal.value < 1000)	
-	
+index = np.where(rgal.value < 1100)	
 	
 ##PLOTS##
 
@@ -51,10 +50,10 @@ line1.set_color('k')
 line2.set_linestyle('None')
 line2.set_marker('.')
 plt.loglog(mytable['MASS_EXTRAP'][index],mytable['VIRMASS_EXTRAP_DECONV'][index],marker='.',c='b',linestyle='None')
-plt.loglog(mytable['MASS_EXTRAP'][92],mytable['VIRMASS_EXTRAP_DECONV'][92],marker='.',c='r')
-plt.loglog(mytable['MASS_EXTRAP'][132],mytable['VIRMASS_EXTRAP_DECONV'][132],marker='.',c='m')
-plt.xlabel(r'$M_{\mathrm{lum}}\ (M_{\odot})$') 
-plt.ylabel(r'$M_{\mathrm{vir}}\ (M_{\odot})$')
+plt.loglog(mytable['MASS_EXTRAP'][92],mytable['VIRMASS_EXTRAP_DECONV'][92],marker='.',c='w')
+plt.loglog(mytable['MASS_EXTRAP'][132],mytable['VIRMASS_EXTRAP_DECONV'][132],marker='.',c='w')
+plt.xlabel(r'$log(M_{\mathrm{lum}})\ (M_{\odot})$') 
+plt.ylabel(r'$log(M_{\mathrm{vir}})\ (M_{\odot})$')
 plt.tight_layout() 	
 plt.savefig('MlumMvir_matplotlib.png')
 
@@ -65,11 +64,11 @@ line1.set_linestyle('-')
 line1.set_color('k')
 line2.set_linestyle('None')
 line2.set_marker('.')
-plt.ylabel(r'$\sigma\ (km\ s^{-1})$') 
-plt.xlabel(r'$R\ (pc)$')
+plt.ylabel(r'$log(\sigma)\ (km\ s^{-1})$') 
+plt.xlabel(r'$log(R)\ (pc)$')
 plt.loglog(mytable['RADRMS_EXTRAP_DECONV'][index],mytable['VRMS_EXTRAP_DECONV'][index],marker='.',c='b',linestyle='None')
-plt.loglog(mytable['RADRMS_EXTRAP_DECONV'][92],mytable['VRMS_EXTRAP_DECONV'][92],marker='.',c='r')
-plt.loglog(mytable['RADRMS_EXTRAP_DECONV'][132],mytable['VRMS_EXTRAP_DECONV'][132],marker='.',c='m')
+plt.loglog(mytable['RADRMS_EXTRAP_DECONV'][92],mytable['VRMS_EXTRAP_DECONV'][92],marker='.',c='w')
+plt.loglog(mytable['RADRMS_EXTRAP_DECONV'][132],mytable['VRMS_EXTRAP_DECONV'][132],marker='.',c='w')
 plt.tight_layout() 	
 plt.savefig('LwRad_matplotlib.png')
 
@@ -80,44 +79,45 @@ line1.set_linestyle('-')
 line1.set_color('k')
 line2.set_linestyle('None')
 line2.set_marker('.')
-plt.xlabel(r'$R\ (pc)$') 
-plt.ylabel(r'$M_{\mathrm{lum}}\ (M_{\odot})$')
+plt.xlabel(r'$log(R)\ (pc)$') 
+plt.ylabel(r'$log(M_{\mathrm{lum}})\ (M_{\odot})$')
 plt.loglog(mytable['RADRMS_EXTRAP_DECONV'][index],mytable['MASS_EXTRAP'][index],marker='.',c='b',linestyle='None')
-plt.loglog(mytable['RADRMS_EXTRAP_DECONV'][92],mytable['MASS_EXTRAP'][92],marker='.',c='r')
-plt.loglog(mytable['RADRMS_EXTRAP_DECONV'][132],mytable['MASS_EXTRAP'][132],marker='.',c='m')
+plt.loglog(mytable['RADRMS_EXTRAP_DECONV'][92],mytable['MASS_EXTRAP'][92],marker='.',c='w')
+plt.loglog(mytable['RADRMS_EXTRAP_DECONV'][132],mytable['MASS_EXTRAP'][132],marker='.',c='w')
 plt.tight_layout() 	
 plt.savefig('MlumRad_matplotlib.png')
 
 #Sigma_0 vs Mass Density
 figure = plt.figure(figsize=(4.5,4))
 plt.loglog(M_den,sigma0,marker='.',linestyle='None',c='g')
-plt.xlabel('$M/\pi R^2\ ((M_{\odot})/pc^2)$')
-plt.ylabel('$\sigma_0$')
+#plt.xlabel('$M/\pi R^2\ ((M_{\odot})/pc^2)$')
+plt.xlabel('$log(\Sigma)\ ((M_{\odot})/pc^2)$')
+plt.ylabel('$log(\sigma_0)\ (km\ s^{-1})$')
 plt.loglog(M_den[index],sigma0[index],marker='.',c='b',linestyle='None')
-plt.loglog(M_den[92],sigma0[92],marker='.',c='r')
-plt.loglog(M_den[132],sigma0[132],marker='.',c='m')
+plt.loglog(M_den[92],sigma0[92],marker='.',c='w')
+plt.loglog(M_den[132],sigma0[132],marker='.',c='w')
 plt.tight_layout() 	
 plt.savefig('Sigma0_Mden_matplotlib.png')
 
 #Sigma_0 vs Galactocentric Radii
 figure = plt.figure(figsize=(4.5,4))
 plt.loglog(rgal.to(u.pc),sigma0,marker='.',linestyle='None',c='g')
-plt.xlabel('$R_{gal} (pc)$')
-plt.ylabel('$\sigma_0$')
+plt.xlabel('$log(R_{gal})\ (pc)$')
+plt.ylabel('$log(\sigma_0)\ (km\ s^{-1})$')
 plt.loglog(rgal.to(u.pc)[index],sigma0[index],marker='.',c='b',linestyle='None')
-plt.loglog(rgal.to(u.pc)[92],sigma0[92],marker='.',c='r')
-plt.loglog(rgal.to(u.pc)[132],sigma0[132],marker='.',c='m')
+plt.loglog(rgal.to(u.pc)[92],sigma0[92],marker='.',c='w')
+plt.loglog(rgal.to(u.pc)[132],sigma0[132],marker='.',c='w')
 plt.tight_layout() 	
 plt.savefig('sigma0_Rgal_matplotlib.png')
 
 #X,Y position
 figure = plt.figure(figsize=(4.5,4)) #figure size in inches
 plt.plot(mytable['XPOS'],mytable['YPOS'],linestyle = 'None', marker = '.',c = 'g')
-plt.xlabel('X') 
-plt.ylabel('Y')
+plt.xlabel('X Position') 
+plt.ylabel('Y Position')
 plt.plot(mytable['XPOS'][index],mytable['YPOS'][index],marker='.',c='b',linestyle='None')
-plt.plot(mytable['XPOS'][92],mytable['YPOS'][92],marker='.',c='r')
-plt.plot(mytable['XPOS'][132],mytable['YPOS'][132],marker='.',c='m')
+plt.plot(mytable['XPOS'][92],mytable['YPOS'][92],marker='.',c='w')
+plt.plot(mytable['XPOS'][132],mytable['YPOS'][132],marker='.',c='w')
 plt.tight_layout() 	
 plt.savefig('xypos_matplotlib.png')
 
